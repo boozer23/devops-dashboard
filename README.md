@@ -1,6 +1,7 @@
 # devops-dashboard
 
 System monitoring dashboard. Tracks CPU, RAM, and disk usage in real time, runs AI analysis on demand, and fires Telegram alerts when something goes critical.
+![CI](https://github.com/boozer23/devops-dashboard/actions/workflows/ci.yml/badge.svg)
 
 **Live:** https://devops-dashboard-p6n6.onrender.com
 
