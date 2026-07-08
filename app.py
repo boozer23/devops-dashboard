@@ -69,7 +69,7 @@ def analyze():
     prompt = f"CPU: {s['cpu']}%, Память: {s['memory']}%, Диск: {s['disk']}%. Проанализируй коротко — 2-3 предложения на русском."
     chat = client.chat.completions.create(
         messages=[{"role": "user", "content": prompt}],
-        model="llama3-8b-8192",
+        model="llama-3.3-70b-versatile",
     )
     return app.response_class(
         response=json.dumps({"ai_analysis": chat.choices[0].message.content}, ensure_ascii=False),
