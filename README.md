@@ -4,6 +4,8 @@ Real-time system monitoring dashboard with AI analysis and Telegram alerts.
 
 🌐 **Live Demo**: https://devops-dashboard-p6n6.onrender.com
 
+![DevOps Dashboard](screenshot.png)
+
 ## 🛠️ Tech Stack
 
 - **Python / Flask** — web server
@@ -41,3 +43,4 @@ devops-dashboard/
 - Historical charts
 - AI-powered system analysis
 - Telegram alerts when metrics exceed thresholds
+- 3 themes: Dark, Light, Cyber
