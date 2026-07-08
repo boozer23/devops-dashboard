@@ -165,7 +165,7 @@
             btn.disabled = true;
             btn.textContent = 'Анализирую...';
             document.getElementById('ai-result').className = 'loading';
-            document.getElementById('ai-result').textContent = '🤖 Claude анализирует систему...';
+            document.getElementById('ai-result').textContent = '🤖 AI анализирует систему...';
             try {
                 const r = await fetch('/analyze');
                 const data = await r.json();
