@@ -12,9 +12,9 @@
         body.theme-light { --bg:#f0f4ff; --bg-glass:rgba(255,255,255,0.65); --border:rgba(0,0,0,0.08); --border-hover:rgba(99,102,241,0.3); --text:#1e293b; --text-muted:#64748b; --text-sub:#94a3b8; --header-bg:rgba(240,244,255,0.9); --grid:rgba(0,0,0,0.05); --divider:rgba(0,0,0,0.08); --grad1:rgba(99,102,241,0.12); --grad2:rgba(16,185,129,0.08); }
         body.theme-cyber { --bg:#000510; --bg-glass:rgba(0,255,200,0.03); --border:rgba(0,255,180,0.12); --border-hover:rgba(0,255,180,0.3); --text:#ccffe8; --text-muted:#00c896; --text-sub:#007a5a; --header-bg:rgba(0,5,16,0.9); --grid:rgba(0,255,180,0.04); --divider:rgba(0,255,180,0.08); --grad1:rgba(0,255,180,0.08); --grad2:rgba(0,100,255,0.06); }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; transition:background 0.4s,color 0.4s; }
-        body::before { content:''; position:fixed; top:0;left:0;width:100%;height:100%; background:radial-gradient(ellipse at 20% 20%,var(--grad1) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,var(--grad2) 0%,transparent 50%); z-index:0; pointer-events:none; transition:background 0.4s; }
+        body::before { content:''; position:fixed; top:0;left:0;width:100%;height:100%; background:radial-gradient(ellipse at 20% 20%,var(--grad1) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,var(--grad2) 0%,transparent 50%); z-index:0; pointer-events:none; }
         .glass { background:var(--bg-glass); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:20px; transition:background 0.4s,border-color 0.4s; }
-        header { position:sticky; top:0; z-index:100; padding:18px 48px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--divider); background:var(--header-bg); backdrop-filter:blur(20px); transition:background 0.4s; }
+        header { position:sticky; top:0; z-index:100; padding:18px 32px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--divider); background:var(--header-bg); backdrop-filter:blur(20px); }
         .logo { display:flex; align-items:center; gap:12px; }
         .logo-icon { width:34px;height:34px; background:linear-gradient(135deg,#6366f1,#8b5cf6); border-radius:9px; display:flex;align-items:center;justify-content:center; font-size:16px; }
         header h1 { font-size:18px; font-weight:600; letter-spacing:-0.3px; }
@@ -45,8 +45,9 @@
         .bar-warn { background:linear-gradient(90deg,#d97706,#f59e0b); }
         .bar-crit { background:linear-gradient(90deg,#dc2626,#ef4444);box-shadow:0 0 10px rgba(239,68,68,0.5); }
         .charts { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:18px; }
-        .chart-card { padding:22px; }
+        .chart-card { padding:22px; min-width:0; }
         .chart-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:14px; }
+        .chart-wrap { position:relative; height:100px; width:100%; }
         .ai-section { padding:28px; }
         .ai-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:20px; }
         .ai-title { display:flex;align-items:center;gap:10px; }
@@ -99,9 +100,9 @@
         </div>
     </div>
     <div class="charts">
-        <div class="chart-card glass"><div class="chart-label">CPU</div><canvas id="cpu-chart" height="100"></canvas></div>
-        <div class="chart-card glass"><div class="chart-label">Память</div><canvas id="mem-chart" height="100"></canvas></div>
-        <div class="chart-card glass"><div class="chart-label">Диск</div><canvas id="disk-chart" height="100"></canvas></div>
+        <div class="chart-card glass"><div class="chart-label">CPU</div><div class="chart-wrap"><canvas id="cpu-chart"></canvas></div></div>
+        <div class="chart-card glass"><div class="chart-label">Память</div><div class="chart-wrap"><canvas id="mem-chart"></canvas></div></div>
+        <div class="chart-card glass"><div class="chart-label">Диск</div><div class="chart-wrap"><canvas id="disk-chart"></canvas></div></div>
     </div>
     <div class="ai-section glass">
         <div class="ai-header">
@@ -123,7 +124,7 @@
     function status(v){return v<60?'ok':v<80?'warn':'crit';}
     function lbl(s){return{ok:'Норма',warn:'Внимание',crit:'Критично'}[s];}
     function updateCard(id,val){const s=status(val);document.getElementById(id+'-val').textContent=val+'%';document.getElementById(id+'-val').className='metric metric-'+s;document.getElementById(id+'-badge').textContent=lbl(s);document.getElementById(id+'-badge').className='badge badge-'+s;document.getElementById(id+'-bar').style.width=val+'%';document.getElementById(id+'-bar').className='progress-bar bar-'+s;}
-    function makeChart(id,color){return new Chart(document.getElementById(id),{type:'line',data:{labels:[],datasets:[{data:[],borderColor:color,backgroundColor:color+'18',fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{plugins:{legend:{display:false}},scales:{x:{display:false},y:{min:0,max:100,ticks:{color:'#64748b',callback:v=>v+'%',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}},animation:false}});}
+    function makeChart(id,color){return new Chart(document.getElementById(id),{type:'line',data:{labels:[],datasets:[{data:[],borderColor:color,backgroundColor:color+'18',fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{min:0,max:100,ticks:{color:'#64748b',callback:v=>v+'%',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}}},animation:false}});}
     const charts={cpu:makeChart('cpu-chart','#6366f1'),mem:makeChart('mem-chart','#10b981'),disk:makeChart('disk-chart','#f59e0b')};
     function pushChart(chart,arr,val){arr.push(val);if(arr.length>MAX)arr.shift();chart.data.labels=arr.map((_,i)=>i);chart.data.datasets[0].data=[...arr];chart.update();}
     async function loadStats(){try{const d=await(await fetch('/stats')).json();updateCard('cpu',d.cpu);updateCard('mem',d.memory);updateCard('disk',d.disk);pushChart(charts.cpu,hist.cpu,d.cpu);pushChart(charts.mem,hist.mem,d.memory);pushChart(charts.disk,hist.disk,d.disk);document.getElementById('last-update').textContent=new Date().toLocaleTimeString();}catch(e){console.error(e);}}
