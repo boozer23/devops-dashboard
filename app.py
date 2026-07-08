@@ -1,4 +1,4 @@
-import anthropic
+from groq import Groq
 import os
 import psutil
 import json
@@ -6,7 +6,7 @@ import urllib.request
 from flask import Flask, jsonify
 
 app = Flask(__name__)
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -67,13 +67,12 @@ def stats():
 def analyze():
     s = get_system_stats()
     prompt = f"CPU: {s['cpu']}%, Память: {s['memory']}%, Диск: {s['disk']}%. Проанализируй коротко — 2-3 предложения на русском."
-    message = client.messages.create(
-        model="claude-haiku-4-5",
-        max_tokens=256,
-        messages=[{"role": "user", "content": prompt}]
+    chat = client.chat.completions.create(
+        messages=[{"role": "user", "content": prompt}],
+        model="llama3-8b-8192",
     )
     return app.response_class(
-        response=json.dumps({"ai_analysis": message.content[0].text}, ensure_ascii=False),
+        response=json.dumps({"ai_analysis": chat.choices[0].message.content}, ensure_ascii=False),
         mimetype='application/json'
     )
 
