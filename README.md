@@ -1,46 +1,23 @@
-# DevOps Dashboard 📊
+# devops-dashboard
 
-Real-time system monitoring dashboard with AI analysis and Telegram alerts.
+System monitoring dashboard. Tracks CPU, RAM, and disk usage in real time, runs AI analysis on demand, and fires Telegram alerts when something goes critical.
 
-🌐 **Live Demo**: https://devops-dashboard-p6n6.onrender.com
+**Live:** https://devops-dashboard-p6n6.onrender.com
 
-![DevOps Dashboard](screenshot.png)
+![screenshot](screenshot.png)
 
-## 🛠️ Tech Stack
+## Stack
 
-- **Python / Flask** — web server
-- **psutil** — system metrics (CPU, RAM, Disk)
-- **Groq API (LLaMA 3.3)** — AI analysis
-- **Telegram API** — alerts
-- **Docker** — containerization
-- **Render** — cloud deployment
+Python, Flask, psutil, Groq API (LLaMA 3.3), Docker, Render
 
-## 🚀 Quick Start
+## Run locally
 
-\`\`\`bash
+```bash
 git clone https://github.com/boozer23/devops-dashboard.git
 cd devops-dashboard
 pip install -r requirements.txt
 export GROQ_API_KEY=your_key
 python app.py
-\`\`\`
+```
 
 Open http://localhost:5002
-
-## 📁 Project Structure
-
-\`\`\`
-devops-dashboard/
-├── app.py          # Flask app + metrics + AI analysis
-├── index.html      # Frontend dashboard
-├── requirements.txt
-└── Dockerfile
-\`\`\`
-
-## 💡 Features
-
-- Real-time CPU, RAM, Disk monitoring
-- Historical charts
-- AI-powered system analysis
-- Telegram alerts when metrics exceed thresholds
-- 3 themes: Dark, Light, Cyber
