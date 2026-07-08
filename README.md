@@ -21,3 +21,18 @@ python app.py
 ```
 
 Open http://localhost:5002
+
+## Docker
+
+```bash
+docker build -t devops-dashboard .
+docker run -p 5002:5002 -e GROQ_API_KEY=your_key devops-dashboard
+```
+
+## Kubernetes
+
+```bash
+kubectl create secret generic groq-secret --from-literal=api-key=your_key
+kubectl apply -f k8s.yml
+minikube service devops-dashboard
+```
