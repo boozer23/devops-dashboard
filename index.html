@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DevOps Dashboard</title>
+    <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial; background: #0d1117; color: #e6edf3; min-height: 100vh; }
+        header { background: #161b22; padding: 20px 40px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { color: #58a6ff; font-size: 24px; }
+        #uptime { color: #8b949e; font-size: 14px; }
+        .container { padding: 30px 40px; }
+        .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 25px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .card-title { color: #8b949e; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .badge-ok { background: #1a4731; color: #3fb950; }
+        .badge-warn { background: #4a2e00; color: #d29922; }
+        .badge-crit { background: #4a1515; color: #f85149; }
+        .metric { font-size: 48px; font-weight: bold; margin-bottom: 10px; }
+        .metric-ok { color: #3fb950; }
+        .metric-warn { color: #d29922; }
+        .metric-crit { color: #f85149; }
+        .progress { height: 6px; background: #30363d; border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; border-radius: 3px; transition: width 0.5s; }
+        .bar-ok { background: #3fb950; }
+        .bar-warn { background: #d29922; }
+        .bar-crit { background: #f85149; }
+        .charts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .chart-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
+        .chart-card h3 { color: #8b949e; font-size: 13px; text-transform: uppercase; margin-bottom: 15px; }
+        .ai-section { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 25px; }
+        .ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .ai-header h2 { color: #58a6ff; }
+        .btn { padding: 10px 20px; background: #238636; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+        .btn:hover { background: #2ea043; }
+        .btn:disabled { background: #30363d; cursor: not-allowed; }
+        #ai-result { color: #e6edf3; line-height: 1.7; min-height: 60px; }
+        #ai-result.loading { color: #8b949e; }
+        .status-bar { display: flex; gap: 20px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #30363d; }
+        .status-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #8b949e; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-green { background: #3fb950; }
+        .dot-yellow { background: #d29922; }
+        .dot-red { background: #f85149; }
+        #last-update { color: #8b949e; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🖥️ DevOps Dashboard</h1>
+        <div id="uptime">Последнее обновление: <span id="last-update">—</span></div>
+    </header>
+
+    <div class="container">
+        <div class="cards">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">CPU</span>
+                    <span class="badge" id="cpu-badge">—</span>
+                </div>
+                <div class="metric" id="cpu-val">—</div>
+                <div class="progress"><div class="progress-bar" id="cpu-bar" style="width:0%"></div></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Память</span>
+                    <span class="badge" id="mem-badge">—</span>
+                </div>
+                <div class="metric" id="mem-val">—</div>
+                <div class="progress"><div class="progress-bar" id="mem-bar" style="width:0%"></div></div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Диск</span>
+                    <span class="badge" id="disk-badge">—</span>
+                </div>
+                <div class="metric" id="disk-val">—</div>
+                <div class="progress"><div class="progress-bar" id="disk-bar" style="width:0%"></div></div>
+            </div>
+        </div>
+
+        <div class="charts">
+            <div class="chart-card"><h3>📈 CPU история</h3><canvas id="cpu-chart" height="120"></canvas></div>
+            <div class="chart-card"><h3>📈 Память история</h3><canvas id="mem-chart" height="120"></canvas></div>
+            <div class="chart-card"><h3>📈 Диск история</h3><canvas id="disk-chart" height="120"></canvas></div>
+        </div>
+
+        <div class="ai-section">
+            <div class="ai-header">
+                <h2>🤖 AI Анализ</h2>
+                <button class="btn" id="analyze-btn" onclick="analyze()">Анализировать</button>
+            </div>
+            <div id="ai-result">Нажми кнопку для AI анализа системы.</div>
+            <div class="status-bar">
+                <div class="status-item"><div class="dot dot-green"></div> Норма: 0–60%</div>
+                <div class="status-item"><div class="dot dot-yellow"></div> Внимание: 60–80%</div>
+                <div class="status-item"><div class="dot dot-red"></div> Критично: 80%+</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const history = { cpu: [], mem: [], disk: [], labels: [] };
+        const maxPoints = 20;
+
+        function getStatus(val) {
+            if (val < 60) return 'ok';
+            if (val < 80) return 'warn';
+            return 'crit';
+        }
+
+        function updateCard(id, val) {
+            const status = getStatus(val);
+            const labels = { ok: 'Норма', warn: 'Внимание', crit: 'Критично' };
+            document.getElementById(id + '-val').textContent = val + '%';
+            document.getElementById(id + '-val').className = 'metric metric-' + status;
+            document.getElementById(id + '-badge').textContent = labels[status];
+            document.getElementById(id + '-badge').className = 'badge badge-' + status;
+            document.getElementById(id + '-bar').style.width = val + '%';
+            document.getElementById(id + '-bar').className = 'progress-bar bar-' + status;
+        }
+
+        function makeChart(id, color) {
+            return new Chart(document.getElementById(id), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.4, pointRadius: 2 }] },
+                options: { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { min: 0, max: 100, ticks: { color: '#8b949e', callback: v => v + '%' }, grid: { color: '#30363d' } } }, animation: false }
+            });
+        }
+
+        const charts = {
+            cpu: makeChart('cpu-chart', '#58a6ff'),
+            mem: makeChart('mem-chart', '#3fb950'),
+            disk: makeChart('disk-chart', '#d29922')
+        };
+
+        function updateChart(chart, histArr, val) {
+            const time = new Date().toLocaleTimeString();
+            histArr.push(val);
+            if (histArr.length > maxPoints) histArr.shift();
+            chart.data.labels = histArr.map((_, i) => i);
+            chart.data.datasets[0].data = [...histArr];
+            chart.update();
+        }
+
+        async function loadStats() {
+            try {
+                const r = await fetch('/stats');
+                const data = await r.json();
+                updateCard('cpu', data.cpu);
+                updateCard('mem', data.memory);
+                updateCard('disk', data.disk);
+                updateChart(charts.cpu, history.cpu, data.cpu);
+                updateChart(charts.mem, history.mem, data.memory);
+                updateChart(charts.disk, history.disk, data.disk);
+                document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+            } catch(e) { console.error(e); }
+        }
+
+        async function analyze() {
+            const btn = document.getElementById('analyze-btn');
+            btn.disabled = true;
+            btn.textContent = 'Анализирую...';
+            document.getElementById('ai-result').className = 'loading';
+            document.getElementById('ai-result').textContent = '🤖 Claude анализирует систему...';
+            try {
+                const r = await fetch('/analyze');
+                const data = await r.json();
+                document.getElementById('ai-result').className = '';
+                document.getElementById('ai-result').textContent = data.ai_analysis;
+            } catch(e) {
+                document.getElementById('ai-result').textContent = 'Ошибка при анализе.';
+            }
+            btn.disabled = false;
+            btn.textContent = 'Анализировать';
+        }
+
+        loadStats();
+        setInterval(loadStats, 3000);
+    </script>
+</body>
+</html>
