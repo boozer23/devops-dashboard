@@ -10,7 +10,7 @@ System monitoring dashboard. Tracks CPU, RAM, and disk usage in real time, runs 
 
 ## Stack
 
-Python, Flask, psutil, Groq API (LLaMA 3.3), Docker, Kubernetes, Terraform, Render
+Python, Flask, psutil, Groq API (LLaMA 3.3), Docker, Kubernetes, Terraform, Prometheus, Grafana, Render
 
 ## Run locally
 
@@ -24,30 +24,29 @@ python app.py
 
 Open http://localhost:5002
 
-## Docker
+## Docker + Prometheus + Grafana
+
+![grafana](grafana-screenshot.png)
 
 ```bash
-docker build -t devops-dashboard .
-docker run -p 5002:5002 -e GROQ_API_KEY=your_key devops-dashboard
+export GROQ_API_KEY=your_key
+docker compose up --build
 ```
+
+- App: http://localhost:5002
+- Prometheus: http://localhost:9091
+- Grafana: http://localhost:3000 (admin/admin)
 
 ## Kubernetes
 
 ![k8s](k8s-screenshot.png)
 
 ```bash
-# Start Minikube
 minikube start
-
-# Build image inside Minikube
 eval $(minikube docker-env)
 docker build -t devops-dashboard:latest .
-
-# Create secret and deploy
 kubectl create secret generic groq-secret --from-literal=api-key=your_key
 kubectl apply -f k8s.yml
-
-# Open in browser
 minikube service devops-dashboard
 ```
 
