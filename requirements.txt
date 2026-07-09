@@ -2,3 +2,4 @@ flask
 psutil
 groq
 requests
+prometheus-client
