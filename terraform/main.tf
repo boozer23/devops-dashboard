@@ -1,36 +1,36 @@
 terraform {
   required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "~> 3.0"
+    hcloud = {
+      source  = "hetznercloud/hcloud"
+      version = "~> 1.45"
     }
   }
 }
 
-provider "docker" {}
-
-resource "docker_image" "devops_dashboard" {
-  name = "devops-dashboard:latest"
-  build {
-    context = "../"
-  }
+provider "hcloud" {
+  token = var.hcloud_token
 }
 
-resource "docker_container" "devops_dashboard" {
-  name  = "devops-dashboard"
-  image = docker_image.devops_dashboard.image_id
+resource "hcloud_server" "devops" {
+  name        = "devops-dashboard"
+  image       = "ubuntu-24.04"
+  server_type = "cx22"
+  location    = "nbg1"
 
-  ports {
-    internal = 5002
-    external = 5002
-  }
-
-  env = [
-    "GROQ_API_KEY=${var.groq_api_key}"
-  ]
+  user_data = <<-EOF
+    #!/bin/bash
+    apt-get update
+    apt-get install -y docker.io docker-compose-plugin
+    systemctl enable docker
+    systemctl start docker
+  EOF
 }
 
-variable "groq_api_key" {
-  description = "Groq API key"
+variable "hcloud_token" {
+  description = "Hetzner Cloud API token"
   sensitive   = true
+}
+
+output "server_ip" {
+  value = hcloud_server.devops.ipv4_address
 }
